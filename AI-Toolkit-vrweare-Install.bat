@@ -107,12 +107,12 @@ goto :eof
 
 :install_git
 :: https://git-scm.com/
-echo %green%::::::::::::::: Installing/Updating%yellow% Git %green%:::::::::::::::%reset%
-echo.
+::echo %green%::::::::::::::: Installing/Updating%yellow% Git %green%:::::::::::::::%reset%
+::echo.
 
-winget.exe install --id Git.Git -e --source winget
-set "path=%PATH%;%ProgramFiles%\Git\cmd"
-echo.
+::winget.exe install --id Git.Git -e --source winget
+::set "path=%PATH%;%ProgramFiles%\Git\cmd"
+::echo.
 goto :eof
 
 :nodejs_install
@@ -165,10 +165,12 @@ echo.
 cd ..\
 git.exe clone https://github.com/ostris/ai-toolkit.git
 cd ai-toolkit
+:: c6edd71 3086a58
+git checkout c6edd71
 ..\python_embeded\python.exe -I -m virtualenv venv
 CALL venv\Scripts\activate.bat
 pip install uv==0.9.7 %PIPargs%
-uv pip install torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cu128 %UVargs%
+uv pip install torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cu129 %UVargs%
 uv pip install -r requirements.txt %UVargs%
 uv pip install poetry-core %UVargs%
 uv pip install triton-windows==3.4.0.post20 %UVargs%
