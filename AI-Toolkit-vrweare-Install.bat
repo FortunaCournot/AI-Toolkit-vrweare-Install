@@ -1,4 +1,6 @@
 @Echo off
+:: tested AITOOLGITCOMMITs: c6edd71 3086a58
+set AITOOLGITCOMMITs=c6edd71
 set "version_title=AI-Toolkit-Easy-Install v0.3.21 by ivo"
 Title %version_title%
 
@@ -165,8 +167,7 @@ echo.
 cd ..\
 git.exe clone https://github.com/ostris/ai-toolkit.git
 cd ai-toolkit
-:: c6edd71 3086a58
-git checkout c6edd71
+git checkout %AITOOLGITCOMMIT%
 ..\python_embeded\python.exe -I -m virtualenv venv
 CALL venv\Scripts\activate.bat
 pip install uv==0.9.7 %PIPargs%
