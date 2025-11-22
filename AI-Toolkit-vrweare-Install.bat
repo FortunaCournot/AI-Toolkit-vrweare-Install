@@ -168,10 +168,13 @@ tar.exe -xf python_3.12.7_include_libs.zip
 erase python_3.12.7_include_libs.zip
 cd ..\ai-toolkit
 
-set PATH=%PATH%;..\python_embeded\Scripts
+set PYTHONREL=..\python_embeded
+for %%I in ("%PYTHONREL%") do set PYTHONABS=%%~fI
+set PATH=%PATH%;%PYTHONABS%\;%PYTHONABS%\Scripts\
 
 :: tsuchinoko11 @ help_me on 17.11.2025:
-..\python_embeded\python.exe -m pip install torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cu129
+::..\python_embeded\python.exe -m pip install torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/nightly/cu128
+..\python_embeded\python.exe -m pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
 ..\python_embeded\python.exe -m pip install poetry-core
 ..\python_embeded\python.exe -m pip install triton-windows==3.4.0.post20
 ..\python_embeded\python.exe -m pip install --upgrade triton-windows
@@ -181,12 +184,71 @@ set PATH=%PATH%;..\python_embeded\Scripts
 
 cd..\
 .\python_embeded\python.exe test_triton.py
-
+.\python_embeded\python.exe -c "import torch; print('cuda', torch.cuda.is_available(), torch.version.cuda)"
 echo.
 goto :eof
 
+
 :create_bat_files
 echo %green%::::::::::::::: Creating%yellow%  Start-AI-Toolkit.bat %green%:::::::::::::::%reset%
+::------------------------------------------------
+set "start_bat_name=Start-AI-Toolkit.bat"
+Echo @echo off^&^&cd /d %%~dp0>%start_bat_name%
+Echo Title %version_title%>>%start_bat_name%
+Echo setlocal enabledelayedexpansion>>%start_bat_name%
+Echo set GIT_LFS_SKIP_SMUDGE=^1>>%start_bat_name%
+Echo set "local_serv=http://localhost:8675">>%start_bat_name%
+Echo echo.>>%start_bat_name%
+Echo cd ./ai-toolkit>>%start_bat_name%
+Echo.>>%start_bat_name%
+
+Echo echo ^[92m:::::::::::::: Checking for updates... ::::::::::::::^[0m>>%start_bat_name%
+Echo echo.>>%start_bat_name%
+Echo git fetch>>%start_bat_name%
+Echo git status -uno ^| findstr /C:"Your branch is behind" ^>nul>>%start_bat_name%
+Echo if !errorlevel!==0 ^(>>%start_bat_name%
+Echo     echo.>>%start_bat_name%
+Echo     echo ^[92m::::::::::::::: Installing updates... :::::::::::::::^[0m>>%start_bat_name%
+Echo     echo.>>%start_bat_name%
+Echo     git pull>>%start_bat_name%
+Echo     echo.>>%start_bat_name%
+Echo     echo ^[92m::::::::::::: Installing requirements... ::::::::::::^[0m>>%start_bat_name%
+Echo     echo.>>%start_bat_name%
+Echo     CALL venv\Scripts\activate.bat>>%start_bat_name%
+Echo     pip install -r requirements.txt --no-cache>>%start_bat_name%
+Echo     CALL venv\Scripts\deactivate.bat>>%start_bat_name%
+Echo ^) else ^(>>%start_bat_name%
+Echo     echo ^[92m::::::::::::::::: Already up to date ::::::::::::::::^[0m>>%start_bat_name%
+Echo     echo.>>%start_bat_name%
+Echo ^)>>%start_bat_name%
+Echo.>>%start_bat_name%
+
+Echo echo ^[1;93mTips for beginners:^[0m>>%start_bat_name%
+Echo echo.>>%start_bat_name%
+Echo echo ^[1;93mGeneral:^[0m>>%start_bat_name%
+Echo echo  ^[1;32m1.^[0m Set your ^[1;92mHugging Face Token^[0m in Settings>>%start_bat_name%
+Echo echo  ^[1;32m2.^[0m Close server with ^[1;92mCtrl+C twice^[0m, not the ^[1;91mX^[0m button>>%start_bat_name%
+Echo echo  ^[1;32m3.^[0m To activate the ^[1;92mvirtual environment^[0m (if needed):>>%start_bat_name%
+Echo echo     - Open ^[1;92mCMD^[0m where ^[1;92mStart-AI-Toolkit.bat^[0m is located>>%start_bat_name%
+Echo echo     - Run ^[1;92mAI-Toolkit\venv\Scripts\activate.bat^[0m>>%start_bat_name%
+Echo echo     OR Just start ^[1;92mvenv-AI-Toolkit.bat^[0m>>%start_bat_name%
+Echo echo.>>%start_bat_name%
+Echo echo ^[1;93mBranches (run CMD in AI-Toolkit folder):^[0m>>%start_bat_name%
+Echo echo  ^[1;32m1.^[0m Show current branch: ^[1;92mgit branch^[0m>>%start_bat_name%
+Echo echo  ^[1;32m2.^[0m List all branches:   ^[1;92mgit branch -a^[0m>>%start_bat_name%
+Echo echo  ^[1;32m3.^[0m Switch branch:       ^[1;92mgit checkout^[0m ^[1;33mbranch_name^[0m>>%start_bat_name%
+Echo echo  ^[1;32m4.^[0m Back to ^[1;33mmain^[0m branch: ^[1;92mgit checkout^[0m ^[1;33mmain^[0m>>%start_bat_name%
+Echo echo.>>%start_bat_name%
+Echo echo ^[92m:::::::: Waiting for the server to start... :::::::::^[0m>>%start_bat_name%
+Echo.>>%start_bat_name%
+
+Echo cd ./ui>>%start_bat_name%
+Echo set PATH=%PATH%;%PYTHONABS%\;%PYTHONABS%\Scripts\>>%start_bat_name%
+Echo start cmd.exe /k npm run build_and_start>>%start_bat_name%
+Echo :loop>> %start_bat_name%
+Echo powershell -Command "try { $response = Invoke-WebRequest -Uri '!local_serv!' -TimeoutSec 2 -UseBasicParsing; exit 0 } catch { exit 1 }" ^>nul 2^>^&^1>> %start_bat_name%
+Echo if !errorlevel! neq 0 ^(timeout /t 2 /nobreak ^>nul^&^&goto :loop^)>> %start_bat_name%
+Echo start !local_serv!>> %start_bat_name%
 ::------------------------------------------------
 set "start_bat_name=Start-AI-Toolkit-NoUpdate.bat"
 Echo @echo off^&^&cd /d %%~dp0>%start_bat_name%
@@ -218,6 +280,7 @@ Echo echo ^[92m:::::::: Waiting for the server to start... :::::::::^[0m>>%sta
 Echo.>>%start_bat_name%
 
 Echo cd ./ui>>%start_bat_name%
+Echo set PATH=%PATH%;%PYTHONABS%\;%PYTHONABS%\Scripts\>>%start_bat_name%
 Echo start cmd.exe /k npm run build_and_start>>%start_bat_name%
 Echo :loop>> %start_bat_name%
 Echo powershell -Command "try { $response = Invoke-WebRequest -Uri '!local_serv!' -TimeoutSec 2 -UseBasicParsing; exit 0 } catch { exit 1 }" ^>nul 2^>^&^1>> %start_bat_name%
