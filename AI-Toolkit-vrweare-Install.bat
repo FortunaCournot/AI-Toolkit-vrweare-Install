@@ -98,11 +98,7 @@ for /f %%i in ('powershell -command "(New-TimeSpan -Start (Get-Date '%start%') -
 :: Final Messages ::
 :finalmessage
 echo.
-echo %green%::::::::::::::: Installation Complete :::::::::::::::%reset%
-echo %green%::::::::::::::: Total Running Time:%red% %diff% %green%seconds%reset%
-if "%NONINTERACTIVE%"=="0" (
-  echo %yellow%::::::::::::::: Press any key to exit :::::::::::::::%reset%&Pause>nul
-)
+echo %green%::::::::::::::: Running Time:%red% %diff% %green%seconds%reset%
 goto :eof
 
 ::::::::::::::::::::::::::::::::: END :::::::::::::::::::::::::::::::::
@@ -161,11 +157,12 @@ Echo Lib/site-packages> python312._pth
 Echo Lib>> python312._pth
 Echo Scripts>> python312._pth
 Echo python312.zip>> python312._pth
-Echo .>> python312._pth
+Echo %CD%>> python312._pth
 Echo # import site>> python312._pth
 
 .\python.exe -I get-pip.py %PIPargs%
 .\python.exe -I -m pip install --upgrade pip
+set PATH=%CD%\;%CD%\Scripts\;%PATH%
 
 echo.
 goto :eof
@@ -183,10 +180,6 @@ curl.exe -OL https://github.com/woct0rdho/triton-windows/releases/download/v3.0.
 tar.exe -xf python_3.12.7_include_libs.zip
 erase python_3.12.7_include_libs.zip
 cd ..\ai-toolkit
-
-set PYTHONREL=..\python_embeded
-for %%I in ("%PYTHONREL%") do set PYTHONABS=%%~fI
-set PATH=%PATH%;%PYTHONABS%\;%PYTHONABS%\Scripts\
 
 :: tsuchinoko11 @ help_me on 17.11.2025:
 ::..\python_embeded\python.exe -m pip install torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/nightly/cu128
