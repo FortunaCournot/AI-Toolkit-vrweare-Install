@@ -29,7 +29,6 @@ jobs:
         run: |
           git --version
 
-  
       - name: Run Installation Script
         shell: cmd
         run: |
