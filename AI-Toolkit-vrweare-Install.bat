@@ -4,6 +4,14 @@ set AITOOLGITCOMMITs=c6edd71
 set "version_title=AI-Toolkit-Easy-Install v0.3.21 by ivo"
 Title %version_title%
 
+rem Standard: interactiv
+set "NONINTERACTIVE=0"
+for %%A in (%*) do (
+  if /I "%%~A"=="/NONINTERACTIVE" set "NONINTERACTIVE=1"
+  if /I "%%~A"=="-noninteractive" set "NONINTERACTIVE=1"
+  if /I "%%~A"=="/NI" set "NONINTERACTIVE=1"
+)
+
 :: Set colors ::
 call :set_colors
 
@@ -21,7 +29,7 @@ if exist %windir%\system32 set "path=%PATH%;%windir%\System32"
 if exist %windir%\system32\WindowsPowerShell\v1.0 set "path=%PATH%;%windir%\system32\WindowsPowerShell\v1.0"
 if exist %localappdata%\Microsoft\WindowsApps set "path=%PATH%;%localappdata%\Microsoft\WindowsApps"
 
-:: Check for Existing ComfyUI Folder ::
+:: Check for Existing AI-Toolkit Folder ::
 if exist AI-Toolkit (
 	echo %warning%WARNING:%reset% '%bold%AI-Toolkit%reset%' folder already exists!
 	echo %green%Move this file to another folder and run it again.%reset%
@@ -72,6 +80,10 @@ call :python_embedded_install
 :: Install AI-Toolkit ::
 call :ai-toolkit_install
 
+if "%NONINTERACTIVE%"=="1" (
+  goto :finalmessage
+)
+
 :: Create 'Start-AI-Toolkit.bat' ::
 call :create_bat_files
 
@@ -79,14 +91,18 @@ call :create_bat_files
 call :clear_pip_uv_cache
 
 :: Capture the end time ::
+:set_colors
 for /f %%i in ('powershell -command "Get-Date -Format HH:mm:ss"') do set end=%%i
 for /f %%i in ('powershell -command "(New-TimeSpan -Start (Get-Date '%start%') -End (Get-Date '%end%')).TotalSeconds"') do set diff=%%i
 
 :: Final Messages ::
+:finalmessage
 echo.
 echo %green%::::::::::::::: Installation Complete :::::::::::::::%reset%
 echo %green%::::::::::::::: Total Running Time:%red% %diff% %green%seconds%reset%
-echo %yellow%::::::::::::::: Press any key to exit :::::::::::::::%reset%&Pause>nul
+if "%NONINTERACTIVE%"=="0" (
+  echo %yellow%::::::::::::::: Press any key to exit :::::::::::::::%reset%&Pause>nul
+)
 goto :eof
 
 ::::::::::::::::::::::::::::::::: END :::::::::::::::::::::::::::::::::
