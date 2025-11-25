@@ -98,7 +98,6 @@ for /f %%i in ('powershell -command "(New-TimeSpan -Start (Get-Date '%start%') -
 :: Final Messages ::
 :finalmessage
 echo.
-echo %green%::::::::::::::: Running Time:%red% %diff% %green%seconds%reset%
 goto :eof
 
 ::::::::::::::::::::::::::::::::: END :::::::::::::::::::::::::::::::::
@@ -159,7 +158,6 @@ Echo Scripts>> python312._pth
 Echo python312.zip>> python312._pth
 Echo %CD%>> python312._pth
 Echo # import site>> python312._pth
-
 .\python.exe -I get-pip.py %PIPargs%
 .\python.exe -I -m pip install --upgrade pip
 set PATH=%CD%\;%CD%\Scripts\;%PATH%
